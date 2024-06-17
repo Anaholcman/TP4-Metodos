@@ -46,7 +46,7 @@ sigma_max = np.linalg.svd(A, compute_uv=False)[0]
 lambda_max = np.linalg.norm(A, ord=2)**2
 
 # Parámetros
-s = 1 / lambda_max
+s = 1 / lambda_max * 0.1  # Reduciendo el tamaño del paso
 delta = 10**(-2) * sigma_max
 
 # Ejecutar el algoritmo de gradiente descendente para F(x)
@@ -66,6 +66,7 @@ plt.xlabel('Iteraciones')
 plt.ylabel('Error')
 plt.title('Evolución del Error')
 plt.legend()
+plt.grid(True)
 plt.show()
 
 # Graficar la comparación de soluciones
@@ -89,4 +90,5 @@ plt.xlabel('Iteraciones')
 plt.ylabel('Error')
 plt.title('Impacto de la Regularización L2')
 plt.legend()
+plt.grid(True)
 plt.show()
