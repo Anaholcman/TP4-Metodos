@@ -51,17 +51,7 @@ x_final, F_values, F2_values, norm_x_values, errors = gradient_descent(A, b, x, 
 # Graficar los resultados
 
 
-# Gráfico de F y F2 en función de iteraciones
-
-plt.plot(F_values, label='F(x)', color='darkgreen')
-plt.plot(F2_values, label='F2(x)', color='purple')
-plt.xlabel('Iteraciones')
-plt.ylabel('Valor de la función')
-plt.legend()
-plt.title('F(x) y F2(x) en función de iteraciones')
-plt.show()
 # Gráfico de la norma 2 de x en función de iteraciones
-
 plt.plot(norm_x_values, label='Norma 2 de x', color='darkgreen')
 plt.xlabel('Iteraciones')
 plt.ylabel('Norma 2 de x')
@@ -77,6 +67,7 @@ plt.axhline(y=error_svd, color='purple', linestyle='--', label='Error de SVD', l
 plt.xlabel('Iteraciones')
 plt.ylabel('Error ||Ax - b||')
 plt.legend()
+plt.yscale('log')
 plt.title('Error ||Ax - b|| en función de iteraciones')
 
 plt.show()
