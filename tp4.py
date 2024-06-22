@@ -41,7 +41,7 @@ def gradient_descent_regularized(A, b, s, delta, max_iter=1000):
         x = x - s * grad
     return x, errors, norms  # Devolver también la lista norms
 
-def generate_well_conditioned_matrix(A):    
+def generate_bad_conditioned_matrix(A):    
     # Realizar una descomposición en valores singulares (SVD)
     U, s, Vt = np.linalg.svd(A, full_matrices=False)
     
@@ -54,51 +54,42 @@ def generate_well_conditioned_matrix(A):
     
     return A_well_conditioned
 
+def calcular_numero_condicion(A):
+    # Calcular el número de condición usando la norma 2
+    numero_condicion = np.linalg.cond(A, p=2)
+    
+    return numero_condicion
+
+def inicializar_parametros(A, b):
+
+    H_F = 2 * np.dot(A.T, A)
+    
+    sigma_max = np.linalg.svd(A, compute_uv=False)[0]
+    lambda_max = np.linalg.eigvals(H_F).real.max()
+
+    s = 1 / lambda_max
+    delta = 10**(-2) * sigma_max
+
+    x_solution, errors, norms = gradient_descent(A, b, s)
+
+    x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A, b, s, delta)
+
+    U, S, VT = np.linalg.svd(A, full_matrices=False)
+    x_svd = VT.T @ np.diag(1 / S) @ U.T @ b
+    norm_svd = np.linalg.norm(np.dot(A, x_svd) - b, ord=2)
+    error_svd = cost_function(A, x_svd, b)
+    
+    return s, delta, x_solution, errors, norms, x_solution_reg, errors_reg, norms_reg, x_svd, norm_svd, error_svd
+
 # Generación de Datos Aleatorios
 n, d = 5, 100
-A = np.random.rand(n, d)
-b = np.random.rand(n)
+A = np.random.randn(n, d)
+b = np.random.randn(n)
 
-# generar una matriz bien condicionada
-A_moño = generate_well_conditioned_matrix(A)
+A_moño = generate_bad_conditioned_matrix(A)
 
-# Cálculo de H_F
-H_F = 2 * np.dot(A.T, A)
-
-H_F_moño = 2 * np.dot(A_moño.T, A_moño)
-
-# Cálculo de sigma_max y lambda_max
-sigma_max = np.linalg.svd(A, compute_uv=False)[0]
-lambda_max = np.linalg.eigvals(H_F).real.max()
-
-sigma_max_moño = np.linalg.svd(A_moño, compute_uv=False)[0]
-lambda_max_moño = np.linalg.eigvals(H_F_moño).real.max()
-
-# Parámetros
-s = 1 / lambda_max
-delta = 10**(-2) * sigma_max
-
-s_moño = 1 / lambda_max_moño
-delta_moño = 10**(-2) * sigma_max_moño
-
-# Ejecutar el algoritmo de gradiente descendente para F(x)
-x_solution, errors, norms = gradient_descent(A, b, s)
-
-x_solution_moño, errors_moño, norms_moño = gradient_descent(A_moño, b, s_moño)
-
-# Ejecutar el algoritmo de gradiente descendente para F2(x) con regularización L2
-x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A, b, s, delta)
-
-x_solution_reg_moño, errors_reg_moño, norms_reg_moño = gradient_descent_regularized(A_moño, b, s_moño, delta_moño)
-
-# Comparar con la solución obtenida mediante SVD
-U, S, VT = np.linalg.svd(A, full_matrices=False)
-x_svd = np.dot(VT.T, np.dot(np.linalg.inv(np.diag(S)), np.dot(U.T, b)))
-error_svd = np.linalg.norm(np.dot(A, x_svd) - b)
-
-U_moño, S_moño, VT_moño = np.linalg.svd(A_moño, full_matrices=False)
-x_svd_moño = np.dot(VT_moño.T, np.dot(np.linalg.inv(np.diag(S_moño)), np.dot(U_moño.T, b)))
-error_svd_moño = np.linalg.norm(np.dot(A_moño, x_svd_moño) - b)
+s, delta, x_solution, errors, norms, x_solution_reg, errors_reg, norms_reg, x_svd, norm_svd, error_svd = inicializar_parametros(A, b)
+s_moño, delta_moño, x_solution_moño, errors_moño, norms_moño, x_solution_reg_moño, errors_reg_moño, norms_reg_moño, x_svd_moño, norm_svd_moño, error_svd_moño = inicializar_parametros(A_moño, b)
 
 # Grafico la evolución del error
 plt.figure()
@@ -108,9 +99,10 @@ plt.plot(range(len(errors_reg)), errors_reg, label='F2(x) con Regularización', 
 plt.axhline(y=error_svd, color='orange', linestyle='--', label='SVD')
 plt.xlabel('Iteraciones')
 plt.ylabel('Error')
-plt.title('Matriz Random')
+plt.title(f'Número de Condición: {calcular_numero_condicion(A)}')
 plt.legend()
 plt.grid(True)
+# plt.xscale('log')
 plt.yscale('log')
 
 plt.subplot(1, 2, 2)
@@ -119,9 +111,10 @@ plt.plot(range(len(errors_reg_moño)), errors_reg_moño, label='F2(x) con Regula
 plt.axhline(y=error_svd_moño, color='orange', linestyle='--', label='SVD')
 plt.xlabel('Iteraciones')
 plt.ylabel('Error')
-plt.title('Matriz Bien Condicionada')
+plt.title(f'Número de Condición: {calcular_numero_condicion(A_moño)}')
 plt.legend()
 plt.grid(True)
+# plt.xscale('log')
 plt.yscale('log')
 
 plt.suptitle('Evolución del Error')
@@ -157,22 +150,24 @@ plt.figure()
 plt.subplot(1, 2, 1)
 plt.plot(range(len(norms)), norms, label='Norma 2 de x - F(x)', color='darkgreen')
 plt.plot(range(len(norms_reg)), norms_reg, label='Norma 2 de x - F2(x)', color='purple')
+plt.axhline(y=norm_svd, color='orange', linestyle='--', label='SVD')
 plt.xlabel('Iteraciones')
 plt.ylabel(r'$\|x\|_2$')
 plt.title('Matriz Random')
 plt.legend()
 plt.grid(True)
-plt.yscale('log')
+plt.xscale('log')
 
 plt.subplot(1, 2, 2)
 plt.plot(range(len(norms_moño)), norms_moño, label='Norma 2 de x - F(x)', color='darkgreen')
 plt.plot(range(len(norms_reg_moño)), norms_reg_moño, label='Norma 2 de x - F2(x)', color='purple')
+plt.axhline(y=norm_svd_moño, color='orange', linestyle='--', label='SVD')
 plt.xlabel('Iteraciones')
 plt.ylabel(r'$\|x\|_2$')
 plt.title('Matriz Bien Condicionada')
 plt.legend()
 plt.grid(True)
-plt.yscale('log')
+plt.xscale('log')
 
 plt.suptitle(r'$\|x\|_2$ en función de iteraciones')
 plt.tight_layout()
@@ -180,9 +175,8 @@ plt.show()
 
 # Análisis del impacto de la regularización L2
 # delta_values = [10**(-2) * sigma_max, 10**(-1) * sigma_max, 10**(0) * sigma_max]
-delta_values = [10**(-3), 10**(-2), 10**(-1), 10**(0), 10]
+delta_values = [10**(-2), 10**(-1), 10**(0), 10]
 plt.figure() 
-plt.subplot(1, 2, 1)
 
 for delta in delta_values:
     x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A, b, s, delta)
@@ -194,22 +188,5 @@ plt.legend()
 plt.grid(True)
 plt.yscale('log')
 plt.xscale('log')
-plt.title('Matriz Random')
-
-plt.subplot(1, 2, 2)
-
-for delta in delta_values:
-    x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A_moño, b, s_moño, delta)
-    plt.plot(range(len(errors_reg)), errors_reg, label=f'δ²={delta}')
-
-plt.xlabel('Iteraciones')
-plt.ylabel('Error')
-plt.legend()
-plt.grid(True)
-plt.yscale('log')
-plt.xscale('log')
-plt.title('Matriz Bien Condicionada')
-
-plt.suptitle('Impacto de la Regularización L2')
-plt.tight_layout()
+plt.title('Impacto de la Regularización L2')
 plt.show()
