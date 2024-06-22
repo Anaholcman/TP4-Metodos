@@ -102,7 +102,7 @@ error_svd_moño = np.linalg.norm(np.dot(A_moño, x_svd_moño) - b)
 
 # Grafico la evolución del error
 plt.figure()
-plt.subplot(2, 1, 1)
+plt.subplot(1, 2, 1)
 plt.plot(range(len(errors)), errors, label='F(x)', color='darkgreen')
 plt.plot(range(len(errors_reg)), errors_reg, label='F2(x) con Regularización', color='purple')
 plt.axhline(y=error_svd, color='orange', linestyle='--', label='SVD')
@@ -113,7 +113,7 @@ plt.legend()
 plt.grid(True)
 plt.yscale('log')
 
-plt.subplot(2, 2, 1)
+plt.subplot(1, 2, 2)
 plt.plot(range(len(errors_moño)), errors_moño, label='F(x)', color='darkgreen')
 plt.plot(range(len(errors_reg_moño)), errors_reg_moño, label='F2(x) con Regularización', color='purple')
 plt.axhline(y=error_svd_moño, color='orange', linestyle='--', label='SVD')
@@ -130,7 +130,7 @@ plt.show()
 
 # Grafico la comparación de soluciones
 plt.figure()  
-plt.subplot(2, 1, 1)
+plt.subplot(1, 2, 1)
 plt.plot(x_solution, label='Gradiente Descendente F(x)')
 plt.plot(x_solution_reg, label='Gradiente Descendente F2(x)', linestyle='dashed')
 plt.plot(x_svd, label='SVD', linestyle='dotted', linewidth=1.5)
@@ -139,7 +139,7 @@ plt.ylabel('Valor de Componente')
 plt.legend()
 plt.title('Matriz Random')
 
-plt.subplot(2, 2, 1)
+plt.subplot(1, 2, 2)
 plt.plot(x_solution_moño, label='Gradiente Descendente F(x)')
 plt.plot(x_solution_reg_moño, label='Gradiente Descendente F2(x)', linestyle='dashed')
 plt.plot(x_svd_moño, label='SVD', linestyle='dotted', linewidth=1.5)
@@ -154,7 +154,7 @@ plt.show()
 
 # Grafico la norma 2 de x en función de las iteraciones
 plt.figure()  
-plt.subplot(2, 1, 1)
+plt.subplot(1, 2, 1)
 plt.plot(range(len(norms)), norms, label='Norma 2 de x - F(x)', color='darkgreen')
 plt.plot(range(len(norms_reg)), norms_reg, label='Norma 2 de x - F2(x)', color='purple')
 plt.xlabel('Iteraciones')
@@ -164,7 +164,7 @@ plt.legend()
 plt.grid(True)
 plt.yscale('log')
 
-plt.subplot(2, 2, 1)
+plt.subplot(1, 2, 2)
 plt.plot(range(len(norms_moño)), norms_moño, label='Norma 2 de x - F(x)', color='darkgreen')
 plt.plot(range(len(norms_reg_moño)), norms_reg_moño, label='Norma 2 de x - F2(x)', color='purple')
 plt.xlabel('Iteraciones')
@@ -182,7 +182,7 @@ plt.show()
 # delta_values = [10**(-2) * sigma_max, 10**(-1) * sigma_max, 10**(0) * sigma_max]
 delta_values = [10**(-3), 10**(-2), 10**(-1), 10**(0), 10]
 plt.figure() 
-plt.subplot(2, 1, 1)
+plt.subplot(1, 2, 1)
 
 for delta in delta_values:
     x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A, b, s, delta)
@@ -196,7 +196,7 @@ plt.yscale('log')
 plt.xscale('log')
 plt.title('Matriz Random')
 
-plt.subplot(2, 2, 1)
+plt.subplot(1, 2, 2)
 
 for delta in delta_values:
     x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A_moño, b, s_moño, delta)
