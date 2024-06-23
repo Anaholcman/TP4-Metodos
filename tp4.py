@@ -174,3 +174,66 @@ plt.title('Impacto de la Regularización L2')
 plt.show()
 
 
+# Numero de condicion vs iteraciones
+# Parámetros iniciales
+
+# Algoritmo de Gradiente Descendente
+def gradient_descent(A, b, s, max_iter=1000):
+    x = np.random.rand(A.shape[1])  # Condición inicial aleatoria
+    errors = []
+    norms = []  # Para registrar la norma 2 de x
+    for _ in range(max_iter):
+        error = cost_function(A, x, b)
+        errors.append(error)
+        norms.append(np.linalg.norm(x))  # Registrar la norma 2 de x
+        grad = gradient(A, x, b)
+        x = x - s * grad
+    return x, errors, norms  # Devolver también la lista norms
+
+# Generar matrices condicionadas
+def generate_conditioned_matrix(n, d, condition_number):
+    A = np.random.randn(n, d)
+    U, s, Vt = np.linalg.svd(A, full_matrices=False)
+    s = np.linspace(1, condition_number, min(n, d))
+    A_conditioned = U @ np.diag(s) @ Vt
+    return A_conditioned
+
+# Inicializar parámetros para matrices condicionadas
+def inicializar_parametros_condicionadas(A, b):
+    H_F = 2 * np.dot(A.T, A)
+    lambda_max = np.linalg.eigvals(H_F).real.max()
+    s = 1 / lambda_max
+    delta = 10**(-2) * np.linalg.norm(A, 2)
+    x_solution, errors, norms = gradient_descent(A, b, s)
+    return s, delta, x_solution, errors, norms
+
+# Generación de Datos Aleatorios
+n, d = 5, 100
+threshold = 1e-8
+condition_numbers = np.linspace(1, 200, 200)
+iterations_needed = []
+
+for condition_number in condition_numbers:
+    A_conditioned = generate_conditioned_matrix(n, d, condition_number)
+    b_conditioned = np.random.randn(n)
+    s, delta, x_solution, errors, norms = inicializar_parametros_condicionadas(A_conditioned, b_conditioned)
+    iterations = 0
+    for error in errors:
+        if error < threshold:
+            break
+        iterations += 1
+    iterations_needed.append(iterations)
+
+# Graficar los resultados
+plt.figure(figsize=(10, 6))
+plt.semilogy(condition_numbers, iterations_needed, label='Iteraciones Numéricas', color='purple')
+plt.semilogy(condition_numbers, condition_numbers**2, 'r--', label='Cota Teórica', color='orange')
+plt.xlabel('Número de Condición κ(A)')
+plt.ylabel('Número de Iteraciones')
+plt.title('Convergencia del Gradiente Descendente en Función del Número de Condición')
+plt.legend()
+plt.grid(True)
+plt.yscale('log')
+plt.xlim([0, 35])
+plt.ylim([1, 1e4])
+plt.show()
