@@ -103,14 +103,14 @@ for elem in errors:
     
 
 # Grafico la evolución del error
-plt.figure(figsize=(14, 6))
-plt.subplot(1, 2, 1)
-plt.plot(range(len(errors2)), errors2, label='F(x)', color='darkgreen')
+plt.figure()
+# plt.subplot(1, 2, 1)
+plt.plot(range(len(errors)), errors, label='F(x)', color='darkgreen')
 plt.plot(range(len(errors_reg)), errors_reg, label='F2(x) con Regularización', color='purple')
 plt.axhline(y=error_svd, color='orange', linestyle='--', label='SVD')
 plt.xlabel('Iteraciones', fontsize=16)
 plt.ylabel('Costo', fontsize=16)
-plt.title(f'Número de Condición: {calcular_numero_condicion(A)}', fontsize=18)
+# plt.title(f'Número de Condición: {calcular_numero_condicion(A)}', fontsize=18)
 plt.legend()
 plt.grid(True)
 plt.yscale('log')
@@ -126,33 +126,20 @@ plt.legend()
 plt.grid(True)
 plt.yscale('log')
 
-plt.suptitle('Evolución del Error', fontsize=19)
-plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.title('Evolución del Error', fontsize=19)
+# plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.show()
 
-# # Grafico la comparación de soluciones
-# plt.figure()  
-# plt.subplot(1, 2, 1)
-# plt.plot(x_solution, label='Gradiente Descendente F(x)')
-# plt.plot(x_solution_reg, label='Gradiente Descendente F2(x)', linestyle='dashed')
-# plt.plot(x_svd, label='SVD', linestyle='dotted', linewidth=1.5)
-# plt.xlabel('Índice de Componente', fontsize=15)
-# plt.ylabel('Valor de Componente', fontsize=15)
-# plt.legend()
-# plt.title('Matriz Random')
-
-# plt.subplot(1, 2, 2)
-# plt.plot(x_solution_moño, label='Gradiente Descendente F(x)')
-# plt.plot(x_solution_reg_moño, label='Gradiente Descendente F2(x)', linestyle='dashed')
-# plt.plot(x_svd_moño, label='SVD', linestyle='dotted', linewidth=1.5)
-# plt.xlabel('Índice de Componente', fontsize=15)
-# plt.ylabel('Valor de Componente', fontsize=15)
-# plt.legend()
-# plt.title('Matriz Bien Condicionada')
-
-# plt.suptitle('Comparación de Soluciones')
-# plt.tight_layout()
-# plt.show()
+Grafico la comparación de soluciones
+plt.figure()  
+plt.scatter(range(len(x_solution)), x_solution, label='Gradiente Descendente F(x)', marker='o', color='blue')
+plt.scatter(range(len(x_solution_reg)), x_solution_reg, label='Gradiente Descendente F2(x)', marker='s', color='red')
+plt.scatter(range(len(x_svd)), x_svd, label='SVD', marker='^', color='green')
+plt.xlabel('Índice de Componente', fontsize=15)
+plt.ylabel('Valor de Componente', fontsize=15)
+plt.legend()
+plt.title('Comparación de Soluciones')
+plt.show()
 
 # Grafico la norma 2 de x en función de las iteraciones
 plt.figure()  
@@ -168,15 +155,19 @@ plt.title(r'$\|x\|_2$ en función de iteraciones')
 plt.show()
 
 # Análisis del impacto de la regularización L2
-delta_values = [10**(-2), 10**(-1), 10**(0), 10]
 plt.figure() 
 
-for delta in delta_values:
-    x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A, b, s, delta)
-    plt.plot(range(len(errors_reg)), errors_reg, label=f'δ²={delta}')
+errors_final = []
+colors = ['blue', 'green', 'red', 'purple']
+
+for i in range(-3,1):
+    delta = s * 10**(i)
+    x_solution_reg, errors_reg, norms_reg = gradient_descent_regularized(A, b, s, delta,10**3)
+    plt.plot(range(len(errors_reg)), errors_reg, label=f'δ²= σₘₐₓ e{i}')
+    errors_final.append(norms_reg[-1])
     
 plt.xlabel('Iteraciones')
-plt.ylabel('Error')
+plt.ylabel('costo')
 plt.legend()
 plt.grid(True)
 plt.yscale('log')
@@ -184,6 +175,14 @@ plt.xscale('log')
 plt.title('Impacto de la Regularización L2')
 plt.show()
 
+errors_final -= np.min(errors_final)
+plt.bar(range(len(errors_final)), errors_final, color=colors)
+plt.xlabel('Iteraciones')
+plt.ylabel('Error Final')
+plt.xticks(range(len(errors_final)), [f'δ²= σₘₐₓ e{i}' for i in range(-3,1)])
+plt.title('Error Final en cada Iteración')
+plt.ylim(5,6)
+plt.show()
 
 # Numero de condicion vs iteraciones
 # Parámetros iniciales
