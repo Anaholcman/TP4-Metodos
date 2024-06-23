@@ -220,7 +220,7 @@ def inicializar_parametros_condicionadas(A, b):
 
 # Generación de Datos Aleatorios
 n, d = 5, 100
-threshold = 1e-8
+threshold = 1e-5
 condition_numbers = np.linspace(1, 200, 200)
 iterations_needed = []
 
@@ -238,7 +238,7 @@ for condition_number in condition_numbers:
 # Graficar los resultados
 plt.figure(figsize=(10, 6))
 plt.semilogy(condition_numbers, iterations_needed, label='Iteraciones Numéricas', color='purple')
-plt.semilogy(condition_numbers, condition_numbers**2, 'r--', label='Cota Teórica', color='orange')
+#plt.semilogy(condition_numbers, condition_numbers**2, 'r--', label='Cota Teórica', color='orange')
 plt.xlabel('Número de Condición κ(A)')
 plt.ylabel('Número de Iteraciones')
 plt.title('Convergencia del Gradiente Descendente en Función del Número de Condición')
