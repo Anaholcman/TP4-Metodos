@@ -91,10 +91,21 @@ A_moño = generate_bad_conditioned_matrix(A)
 s, delta, x_solution, errors, norms, x_solution_reg, errors_reg, norms_reg, x_svd, norm_svd, error_svd = inicializar_parametros(A, b)
 s_moño, delta_moño, x_solution_moño, errors_moño, norms_moño, x_solution_reg_moño, errors_reg_moño, norms_reg_moño, x_svd_moño, norm_svd_moño, error_svd_moño = inicializar_parametros(A_moño, b)
 
+a = False
+errors2 = []
+for elem in errors:
+    if elem <= error_svd:
+        a = True
+    if a:
+        errors2.append(error_svd)
+    else:
+        errors2.append(elem)
+    
+
 # Grafico la evolución del error
 plt.figure(figsize=(14, 6))
 plt.subplot(1, 2, 1)
-plt.plot(range(len(errors)), errors, label='F(x)', color='darkgreen')
+plt.plot(range(len(errors2)), errors2, label='F(x)', color='darkgreen')
 plt.plot(range(len(errors_reg)), errors_reg, label='F2(x) con Regularización', color='purple')
 plt.axhline(y=error_svd, color='orange', linestyle='--', label='SVD')
 plt.xlabel('Iteraciones', fontsize=16)
